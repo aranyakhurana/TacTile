@@ -28,12 +28,25 @@ pip install --upgrade pip
 ```
 
 ## Using the Instrument
-To run the project, run the following file using:
-
+To run the project, run one of the two python files below by pasting the following commands into terminal:
 ```bash
 python sensor_display_trial.py
-
+```
 or
-
+```bash
 python sensor_display.py
 ```
+Depending on the update status of the code, one or the other of the two commands above might give you better results. Try both.
+
+System level commands for v4,2 (latest update as of 3 March 2025):
+
+| Action                      | Key   |
+| --------------------------- | ----- |
+| Panic Button/stop all notes | P     |
+| Octave DOWN/UP              | Z / X |
+| Transpose DOWN/UP           | C / V |
+| Drop D Tuning               | D     |
+| Perfect Fourths Tuning      | F     |
+| Cycle through scale modes   | S     |
+| Tuning panic button (revert to typical guitar tuning)                       | A     |
+| Quit Program                | Q     |
