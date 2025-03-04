@@ -38,7 +38,7 @@ python sensor_display.py
 ```
 Depending on the update status of the code, one or the other of the two commands above might give you better results. Try both.
 
-System level commands for v4,2 (latest update as of 3 March 2025):
+System level commands for v4.2 (latest update as of 3 March 2025):
 
 | Action                      | Key   |
 | --------------------------- | ----- |
