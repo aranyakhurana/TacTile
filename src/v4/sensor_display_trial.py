@@ -9,7 +9,7 @@ import mido
 
 
 class DummyDataGenerator:
-    def __init__(self, length=200, delay=0.1):
+    def __init__(self, length = 200, delay = 0.1):
         self.length = length
         self.current_index = 0
         self.delay = delay  # Delay in seconds between frame updates
@@ -37,15 +37,13 @@ class DummyDataGenerator:
 
 
 class AdvancedDummyDataGenerator:
-    def __init__(self, length=200, delay=0.1):
+    def __init__(self, length = 200, delay = 0.1):
         self.length = length
         self.delay = delay  # Delay in seconds between frame updates
         self.last_update_time = time.time()
         self.current_frame = [1023] * self.length
-        self.constant_index = int(
-            self.length * (2 / 3))  # Top-left 1/3rd index
-        # Bottom-right 1/3rd index
-        self.flashing_index = int(self.length * (1 / 3))
+        self.constant_index = int(self.length * (2 / 3))  # Top-left 1/3rd index
+        self.flashing_index = int(self.length * (1 / 3))  # Bottom-right 1/3rd index
         self.flash_count = 0
         self.flash_limit = 5
         self.flashing_active = True
@@ -77,7 +75,7 @@ class AdvancedDummyDataGenerator:
 
 class PersistentBlobTracker:
     # adjust distance_threshold as needed by testing with interface; maybe use cell_width and cell_height or cell_width/2?
-    def __init__(self, distance_threshold=85):
+    def __init__(self, distance_threshold = 85):
         self.blob_positions = {}  # Store blob positions by ID
         self.distance_threshold = distance_threshold  # Max distance for matching blobs
         self.next_id = 0  # Counter for generating new IDs
@@ -95,8 +93,7 @@ class PersistentBlobTracker:
             # Find closest existing blob within the distance threshold
             closest_id, min_distance = None, float('inf')
             for blob_id, (prev_position, _) in self.blob_positions.items():
-                distance = np.linalg.norm(
-                    np.array(position) - np.array(prev_position))
+                distance = np.linalg.norm(np.array(position) - np.array(prev_position))
                 if distance < min_distance and distance < self.distance_threshold:
                     closest_id, min_distance = blob_id, distance
 
@@ -155,17 +152,14 @@ class BlobToMIDIConverter:
             x, y = position
 
             # the calculation below is makeshift and SUCKS but works for now; make it better
-            grid_x = (x * effective_width //
-                      window_width) + (padding_offset * (effective_width // window_width) + (padding_offset//2) - 5)
-            grid_y = (y *
-                      effective_height // window_height) + (padding_offset * (effective_width // window_width) + (padding_offset//2) - 5)
+            grid_x = (x * effective_width // window_width) + (padding_offset * (effective_width // window_width) + (padding_offset//2) - 5)
+            grid_y = (y * effective_height // window_height) + (padding_offset * (effective_width // window_width) + (padding_offset//2) - 5)
 
             row, col = self._get_grid_position(grid_x, grid_y)
 
             if row is not None and col is not None:
                 midi_note = self.note_grid.get_note_at_position(row, col)
-                note_name = self.note_grid.midi_to_note_name(
-                    midi_note)  # Get note name
+                note_name = self.note_grid.midi_to_note_name(midi_note)  # Get note name
 
                 # Calculate velocity as twice the blob size, clamped to 1–127
                 velocity = max(1, min(127, int(size * 2)))
@@ -174,10 +168,8 @@ class BlobToMIDIConverter:
                 if blob_id not in self.active_notes:
 
                     # Start a new note and record the initial position
-                    initial_rel_x = (grid_x % (effective_width // self.note_grid.columns)
-                                     ) / (effective_width // self.note_grid.columns)
-                    note = MIDINote(midi_channel=blob_id %
-                                    16, midi_note=midi_note, velocity=velocity)
+                    initial_rel_x = (grid_x % (effective_width // self.note_grid.columns)) / (effective_width // self.note_grid.columns)
+                    note = MIDINote(midi_channel = blob_id % 16, midi_note = midi_note, velocity = velocity)
                     note.open_midi_port(self.midi_port)
                     note.send_note_on()
                     self.active_notes[blob_id] = {
@@ -186,8 +178,7 @@ class BlobToMIDIConverter:
                         "initial_rel_x": initial_rel_x,  # Store initial position
                     }
 
-                    print(f"\nBlob {blob_id} started note {
-                          note_name} with velocity {velocity}")
+                    print(f"\nBlob {blob_id} started note {note_name} with velocity {velocity}")
 
                 else:
                     # Apply pitch bend based on blob position
@@ -195,20 +186,15 @@ class BlobToMIDIConverter:
                     start_col = note_data["start_col"]
                     # Retrieve the stored initial position
                     initial_rel_x = note_data["initial_rel_x"]
-                    pitch_bend = self._calculate_pitch_bend(
-                        grid_x, grid_y, row, col, start_col, initial_rel_x)
+                    pitch_bend = self._calculate_pitch_bend(grid_x, grid_y, row, col, start_col, initial_rel_x)
                     if note_data["note"].output_port:
-                        note_data["note"].output_port.send(
-                            mido.Message(
-                                'pitchwheel', channel=0, pitch=pitch_bend)
-                        )
-                        print(f"\nBlob {blob_id}: Applied Pitch Bend {
-                              pitch_bend}")
+                        note_data["note"].output_port.send(mido.Message('pitchwheel', channel = 0, pitch = pitch_bend))
+                        print(f"\nBlob {blob_id}: Applied Pitch Bend {pitch_bend}")
 
         # Check for any blobs that have disappeared and stop their notes
         self._stop_disappeared_blobs(blob_positions)
 
-    def _calculate_pitch_bend(self, grid_x, grid_y, row, col, start_col, initial_rel_x, pitch_bend_range=12):
+    def _calculate_pitch_bend(self, grid_x, grid_y, row, col, start_col, initial_rel_x, pitch_bend_range = 12):
         """Calculate the pitch bend value relative to the initial position."""        # Determine the cell width and height
         cell_width = effective_width // self.note_grid.columns
         cell_height = effective_height // len(self.note_grid.grid)
@@ -226,24 +212,20 @@ class BlobToMIDIConverter:
             distance = rel_x - initial_rel_x
 
             # Apply a quadratic curve: subtle near 0, steeper near edges
-
-            curved_distance = distance ** cv2.getTrackbarPos(
-                "Pitch Curve", "Sensor Matrix")
+            curved_distance = distance ** cv2.getTrackbarPos("Pitch Curve", "Sensor Matrix")
 
             # curved_distance = distance ** 7  # Cubic curve for more subtle start
-
             pitch_bend = int(curved_distance * 2 * pitch_bend_per_semitone)
 
-            print(f"Manual Vibrato: rel_x={rel_x:.2f}, initial_rel_x={initial_rel_x:.2f}, "
-                  f"distance={distance:.2f}, curved_distance={curved_distance:.2f}, pitch_bend={pitch_bend}")
+            print(f"Manual Vibrato: rel_x={rel_x:.2f}, initial_rel_x={initial_rel_x:.2f}, "f"distance={distance:.2f}, curved_distance={curved_distance:.2f}, pitch_bend={pitch_bend}")
+
         else:
             # Note Bend: Calculate based on horizontal movement to a new block
             note_diff = col - start_col
             pitch_bend_per_semitone = 8192 // pitch_bend_range
             pitch_bend = note_diff * pitch_bend_per_semitone
 
-            print(f"Note Bend: col={col}, start_col={start_col}, note_diff={
-                note_diff}, pitch_bend={pitch_bend}")
+            print(f"Note Bend: col={col}, start_col={start_col}, note_diff={note_diff}, pitch_bend={pitch_bend}")
 
         # Clamp the pitch bend value to the valid range
         pitch_bend = max(-8192, min(8191, pitch_bend))
@@ -256,6 +238,7 @@ class BlobToMIDIConverter:
         return pitch_bend
 
     def _get_grid_position(self, grid_x, grid_y):
+        
         """Calculate the row and column in the note grid based on adjusted grid coordinates."""
         cell_width = effective_width // self.note_grid.columns
         cell_height = effective_height // len(self.note_grid.grid)
@@ -268,25 +251,23 @@ class BlobToMIDIConverter:
         return None, None
 
     def _stop_disappeared_blobs(self, blob_positions):
+
         """
         Stop and clear notes for blobs that have disappeared.
         :param blob_positions: Current frame's blob positions.
         """
+
         # Find blob IDs that were active but are no longer present
-        disappeared_blobs = set(self.active_notes.keys()) - \
-            set(blob_positions.keys())
+        disappeared_blobs = set(self.active_notes.keys()) - set(blob_positions.keys())
 
         for blob_id in disappeared_blobs:
-            note_data = self.active_notes.pop(
-                blob_id)  # Get the dict for the blob
+            note_data = self.active_notes.pop(blob_id)  # Get the dict for the blob
             note = note_data["note"]  # Extract the MIDINote object
-            note_name = self.note_grid.midi_to_note_name(
-                note.midi_note)  # Get note name
+            note_name = self.note_grid.midi_to_note_name(note.midi_note)  # Get note name
 
             # Send a MIDI note-off message
             if note.output_port:
-                note.output_port.send(mido.Message(
-                    'note_off', channel=note.midi_channel, note=note.midi_note))
+                note.output_port.send(mido.Message('note_off', channel=note.midi_channel, note=note.midi_note))
                 print(f"Blob {blob_id} stopped note {note_name}")
 
             # Clear the note grid block color here (customize as needed)
@@ -308,8 +289,7 @@ class BlobToMIDIConverter:
         # Map the blob’s coordinates to the grid dimensions
         # Ensure x and y are adjusted for padding offset, then scale by cell size
         col = (x - padding_offset) * self.note_grid.columns // effective_width
-        row = (y - padding_offset) * \
-            len(self.note_grid.grid) // effective_height
+        row = (y - padding_offset) * len(self.note_grid.grid) // effective_height
 
         if 0 <= row < len(self.note_grid.grid) and 0 <= col < self.note_grid.columns:
             return row, col
@@ -319,17 +299,16 @@ class BlobToMIDIConverter:
         """Stops all active notes by sending note_off messages."""
         for blob_id, note in list(self.active_notes.items()):
             if note.output_port:
-                note.output_port.send(mido.Message(
-                    'note_off', channel=note.midi_channel, note=note.midi_note))
+                note.output_port.send(mido.Message('note_off', channel = note.midi_channel, note = note.midi_note))
             # Remove the note from active notes after stopping it
             self.active_notes.pop(blob_id)
         print("\n\nAll active notes stopped.")
 
 
-def map_value(value, in_min=0, in_max=1023, out_min=0, out_max=255):
+def map_value(value, in_min = 0, in_max = 1023, out_min = 0, out_max = 255):
     # Function to map the 0-1023 values to a grayscale range
     # could also bit shift it from 10 to 8 (computationally faster)
-    return int(value/4)
+    return int(value / 4)
 
 
 def generate_image(data):
@@ -341,8 +320,7 @@ def generate_image(data):
     mapped_matrix = np.vectorize(map_value)(matrix)
 
     # Resize the 20x10 image to make it larger for visualization
-    resized_image = cv2.resize(mapped_matrix.astype(
-        np.uint8), (780, 390), interpolation=cv2.INTER_LANCZOS4)
+    resized_image = cv2.resize(mapped_matrix.astype(np.uint8), (780, 390), interpolation = cv2.INTER_LANCZOS4)
 
     # Define yellow color for border in BGR format
     padding_color = (255)
@@ -350,7 +328,7 @@ def generate_image(data):
     # Add padding to the resized image
     padded_image = cv2.copyMakeBorder(
         # Padded border
-        resized_image, padding_offset, padding_offset, padding_offset, padding_offset, cv2.BORDER_CONSTANT, value=padding_color)
+        resized_image, padding_offset, padding_offset, padding_offset, padding_offset, cv2.BORDER_CONSTANT, value = padding_color)
 
     # # Print for debugging
     # print(f"Padding: {padding_offset}, Border Color: {padding_color}")
@@ -398,11 +376,10 @@ def initialize_blob_detector():
     return cv2.SimpleBlobDetector_create(params)
 
 
-def apply_threshold_and_invert(img, min_val=250, max_val=255):
+def apply_threshold_and_invert(img, min_val = 250, max_val = 255):
     # Apply a threshold and ensure background is white where there are no blobs
     # Invert binary threshold to keep darker blobs
-    _, thresholded_img = cv2.threshold(
-        img, min_val, max_val, cv2.THRESH_BINARY)
+    _, thresholded_img = cv2.threshold(img, min_val, max_val, cv2.THRESH_BINARY)
     return thresholded_img
 
 
@@ -422,7 +399,7 @@ def create_trackbars():
     cv2.createTrackbar("Pitch Curve", "Sensor Matrix", 7, 10, nothing)
 
 
-def overlay_note_grid(display_img, note_grid, padding_offet, active_notes, alpha=0.5):
+def overlay_note_grid(display_img, note_grid, padding_offet, active_notes, alpha = 0.5):
     # Calculate effective dimensions of the note grid
     effective_width = display_img.shape[1] - (2 * padding_offset)
     effective_height = display_img.shape[0] - (2 * padding_offset)
@@ -446,8 +423,7 @@ def overlay_note_grid(display_img, note_grid, padding_offet, active_notes, alpha
             # Get the MIDI note number at the position
             note_number = note_grid.get_note_at_position(row, col)
             # Convert the MIDI note number to the note name
-            note_name = note_grid.midi_to_note_name(
-                note_number, include_octave=True)
+            note_name = note_grid.midi_to_note_name(note_number, include_octave = True)
 
             x = padding_offset + (col * cell_width)
             y = padding_offset + (row * cell_height)
@@ -459,12 +435,9 @@ def overlay_note_grid(display_img, note_grid, padding_offet, active_notes, alpha
                 color = (200, 200, 200)  # Gray for inactive notes
 
             # Draw the cell on the overlay
-            cv2.rectangle(overlay, (x, y), (x + cell_width,
-                          y + cell_height), color, -1)
-            cv2.rectangle(overlay, (x, y), (x + cell_width,
-                          y + cell_height), (100, 100, 100), 1)
-            cv2.putText(overlay, note_name, (x + cell_width // 4, y + cell_height // 2),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
+            cv2.rectangle(overlay, (x, y), (x + cell_width, y + cell_height), color, -1)
+            cv2.rectangle(overlay, (x, y), (x + cell_width, y + cell_height), (100, 100, 100), 1)
+            cv2.putText(overlay, note_name, (x + cell_width // 4, y + cell_height // 2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
 
     # Blend the overlay with the original image using the alpha transparency factor
     cv2.addWeighted(overlay, alpha, display_img, 1 - alpha, 0, display_img)
@@ -537,6 +510,7 @@ if __name__ == '__main__':
 
     # Original display dimensions
     original_width, original_height = 600, 300
+    
     # Effective dimensions after padding
     effective_width = original_width - (2 * padding_offset)
     effective_height = original_height - (2 * padding_offset)
@@ -554,8 +528,10 @@ if __name__ == '__main__':
         # Read current trackbar positions for threshold and area parameters
         threshold_min = cv2.getTrackbarPos("Thresh Min", "Sensor Matrix")
         threshold_max = cv2.getTrackbarPos("Thresh Max", "Sensor Matrix")
+
         area_min = cv2.getTrackbarPos("Area Min", "Sensor Matrix")
         area_max = cv2.getTrackbarPos("Area Max", "Sensor Matrix")
+
         circularity_min = cv2.getTrackbarPos("Circ Min", "Sensor Matrix")
         circularity_max = cv2.getTrackbarPos("Circ Max", "Sensor Matrix")
 
@@ -570,8 +546,7 @@ if __name__ == '__main__':
             else:
                 sensor_data = dummy_generator.get_next_frame()
         else:
-            data = serial.Serial(
-                comport, baudrate, timeout=0.1).readline().decode()
+            data = serial.Serial(comport, baudrate, timeout=0.1).readline().decode()
             if data:
                 values = list(map(int, data.split()))
                 if len(values) == 200:
@@ -585,8 +560,7 @@ if __name__ == '__main__':
         original_img, padded_img = generate_image(sensor_data)
 
         # Apply inverted thresholding to keep darker areas as blobs
-        thresholded_img = apply_threshold_and_invert(
-            padded_img, min_val=threshold_min, max_val=threshold_max)
+        thresholded_img = apply_threshold_and_invert(padded_img, min_val = threshold_min, max_val = threshold_max)
 
         # Initialize the display base as a white background
         display_img = np.full_like(thresholded_img, 255)
@@ -608,16 +582,14 @@ if __name__ == '__main__':
             display_img = np.full_like(padded_img, 255)
             display_img = cv2.cvtColor(display_img, cv2.COLOR_GRAY2BGR)
         if show_threshold == 1:
-            display_img = cv2.cvtColor(
-                thresholded_img.copy(), cv2.COLOR_GRAY2BGR)
+            display_img = cv2.cvtColor(thresholded_img.copy(), cv2.COLOR_GRAY2BGR)
         if show_threshold == 2:
             # Use the original padded image directly
             display_img = cv2.cvtColor(padded_img, cv2.COLOR_GRAY2BGR)
 
         # Show note grid if enabled
         if show_note_grid:
-            display_img = overlay_note_grid(
-                display_img, note_grid, padding_offset, midi_converter.active_notes, alpha=0.5)
+            display_img = overlay_note_grid(display_img, note_grid, padding_offset, midi_converter.active_notes, alpha=0.5)
 
         # Show blobs if enabled
         if show_blobs:
@@ -627,10 +599,8 @@ if __name__ == '__main__':
             for blob_id, (position, size) in blob_positions.items():
                 x, y = position
 
-                grid_x = (x * effective_width //
-                          window_width) + (padding_offset * (effective_width // window_width) + (padding_offset//2) - 5)
-                grid_y = (y *
-                          effective_height // window_height) + (padding_offset * (effective_width // window_width) + (padding_offset//2) - 5)
+                grid_x = (x * effective_width // window_width) + (padding_offset * (effective_width // window_width) + (padding_offset//2) - 5)
+                grid_y = (y * effective_height // window_height) + (padding_offset * (effective_width // window_width) + (padding_offset//2) - 5)
 
                 # size = int(keypoint.size)  # Scale size as well
 
@@ -643,10 +613,8 @@ if __name__ == '__main__':
 
                 # Draw a crosshair at the center of the blob
                 crosshair_size = 7
-                cv2.line(display_img, (x - crosshair_size, y), (x + crosshair_size, y),
-                         (0, 0, 0), 1)  # Horizontal line
-                cv2.line(display_img, (x, y - crosshair_size), (x, y + crosshair_size),
-                         (0, 0, 0), 1)  # Vertical line
+                cv2.line(display_img, (x - crosshair_size, y), (x + crosshair_size, y), (0, 0, 0), 1)  # Horizontal line
+                cv2.line(display_img, (x, y - crosshair_size), (x, y + crosshair_size), (0, 0, 0), 1)  # Vertical line
 
                 # crosshair to check blob's REAL position; doesn't really work as expected
                 # cv2.line(display_img, (grid_x - crosshair_size, grid_y), (grid_x + crosshair_size, grid_y),
@@ -655,10 +623,8 @@ if __name__ == '__main__':
                 #          (0, 0, 255), 1)  # Vertical line
 
                 # Blob info text
-                blob_info = f"ID: {blob_id}, X: {
-                    grid_x}, Y: {grid_y}, Size: {size}"
-                cv2.putText(display_img, blob_info, (x + 10, y - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
+                blob_info = f"ID: {blob_id}, X: {grid_x}, Y: {grid_y}, Size: {size}"
+                cv2.putText(display_img, blob_info, (x + 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
                 # print(f"ID: {blob_id},\t\tX  : {x},\tY  : {y}")
                 # print(f"ID: {blob_id},\t\tG_X: {grid_x},\t\tG_Y: {grid_y}\n\n")
 
@@ -676,8 +642,7 @@ if __name__ == '__main__':
         elif key == ord('l'):
             # Toggle between regular and advanced dummy data generators
             use_advanced_dummy = not use_advanced_dummy
-            print(
-                "Switched to", "Advanced Dummy Data" if use_advanced_dummy else "Basic Dummy Data")
+            print("Switched to", "Advanced Dummy Data" if use_advanced_dummy else "Basic Dummy Data")
 
         # Key press handling for MIDI note grid controls
         elif key == ord('z'):       # Lower by one octave

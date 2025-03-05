@@ -28,28 +28,31 @@ pip install --upgrade pip
 ```
 
 ## Using the Instrument
-To run the project, run one of the two python files below by pasting the following commands into terminal:
-```bash
-python sensor_display_trial.py
-```
-or
+To run the project, run the python file below by pasting the following command into the python terminal:
 ```bash
 python sensor_display.py
 ```
-Depending on the update status of the code, one or the other of the two commands above might give you better results. Try both.
+<!-- or
+```bash
+python sensor_display.py
+``` -->
+<!-- Depending on the update status of the code, one or the other of the two commands above might give you better results. Try both. -->
 
-System level commands for v4.2 (latest update as of 3 March 2025):
+## System Level Commands
 
-| Action                      | Key   |
-| --------------------------- | ----- |
-| Panic Button/stop all notes | P     |
-| Octave DOWN/UP              | Z / X |
-| Transpose DOWN/UP           | C / V |
-| Drop D Tuning               | D     |
-| Perfect Fourths Tuning      | F     |
-| Cycle through scale modes   | S     |
-| Tuning panic button (revert to typical guitar tuning)                       | A     |
-| Quit Program                | Q     |
+for v4.2 (latest update as of 3 March 2025):
+
+| Action                               | Key   |
+| ------------------------------------ | ----- |
+| Panic Button/stop all notes          | P     |
+| Octave DOWN/UP                       | Z / X |
+| Transpose DOWN/UP                    | C / V |
+| Drop D Tuning                        | D     |
+| Perfect Fourths Tuning               | F     |
+| Cycle through scale modes            | S     |
+| Tuning panic button (revert to typical guitar tuning)                                | A     |
+| Cycle between blob threshold views   | T     |
+| Quit Program                         | Q     |
 
 
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]

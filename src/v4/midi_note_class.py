@@ -11,15 +11,14 @@ class MIDINote:
         self.modulation = modulation
         self.output_port = None
 
-    def open_midi_port(self, port_name="Python MIDI Out"):
+    def open_midi_port(self, port_name = "Python MIDI Out"):
         """Opens the MIDI output port to send messages."""
         self.output_port = mido.open_output(port_name)
 
     def send_note_on(self):
         """Sends a Note On message."""
         if self.output_port:
-            msg = mido.Message('note_on', channel=self.midi_channel,
-                               note=self.midi_note, velocity=self.velocity)
+            msg = mido.Message('note_on', channel = self.midi_channel, note = self.midi_note, velocity = self.velocity)
             self.output_port.send(msg)
 
     def set_velocity(self, velocity):
@@ -39,6 +38,6 @@ class MIDINote:
         self.modulation = amount
 
     def __str__(self):
-        return (f"MIDINote(channel={self.midi_channel}, note={self.midi_note}, "
-                f"velocity={self.velocity}, pitch_bend={self.pitch_bend}, "
-                f"vibrato={self.vibrato}, modulation={self.modulation})")
+        return (f"MIDINote(channel = {self.midi_channel}, note = {self.midi_note}, "
+                f"velocity = {self.velocity}, pitch_bend = {self.pitch_bend}, "
+                f"vibrato = {self.vibrato}, modulation = {self.modulation})")

@@ -9,8 +9,7 @@ class MIDINoteGrid:
         self.columns = 13
         self.octave_shift = 0  # Track octave transposition
         self.semitone_shift = 0  # Track semitone transposition
-        self.scale_modes = ["Major", "Minor",
-                            "Minor Pentatonic", "Major Pentatonic", "Chromatic"]
+        self.scale_modes = ["Major", "Minor", "Minor Pentatonic", "Major Pentatonic", "Chromatic"]
         self.current_scale_index = None  # None means no scale mode is applied
         self.grid = self.generate_grid()
 
@@ -23,8 +22,7 @@ class MIDINoteGrid:
             if self.current_scale_index is None:
                 row = [adjusted_root + fret for fret in range(self.columns)]
             else:
-                row = self.generate_scale_row(
-                    adjusted_root, self.scale_modes[self.current_scale_index])
+                row = self.generate_scale_row(adjusted_root, self.scale_modes[self.current_scale_index])
             grid.append(row)
         # Reverse grid so lower-pitched strings are at the bottom
         return grid[::-1]
@@ -39,14 +37,12 @@ class MIDINoteGrid:
             "Chromatic": list(range(12))
         }
         intervals = scales[scale_type]
-        row = [(root_note + intervals[i % len(intervals)] + (i // len(intervals)) * 12)
-               for i in range(self.columns)]
+        row = [(root_note + intervals[i % len(intervals)] + (i // len(intervals)) * 12) for i in range(self.columns)]
         return row
 
-    def midi_to_note_name(self, midi_number, include_octave=True):
+    def midi_to_note_name(self, midi_number, include_octave = True):
         """Converts a MIDI note number to a note name."""
-        note_names = ['C ', 'C#', 'D ', 'D#', 'E ',
-                      'F ', 'F#', 'G ', 'G#', 'A ', 'A#', 'B ']
+        note_names = ['C ', 'C#', 'D ', 'D#', 'E ', 'F ', 'F#', 'G ', 'G#', 'A ', 'A#', 'B ']
         note = note_names[midi_number % 12]
         if include_octave:
             octave = (midi_number // 12) - 1
@@ -86,8 +82,7 @@ class MIDINoteGrid:
         if self.current_scale_index is None:
             self.current_scale_index = 0
         else:
-            self.current_scale_index = (
-                self.current_scale_index + 1) % len(self.scale_modes)
+            self.current_scale_index = (self.current_scale_index + 1) % len(self.scale_modes)
         self.grid = self.generate_grid()
 
     def tuning_name(self):
@@ -100,15 +95,13 @@ class MIDINoteGrid:
             tuning_name = "Perfect Fourths Tuning"
         else:
             tuning_name = "Custom Tuning"
-        tuning_notes = [self.midi_to_note_name(
-            note, include_octave=False) for note in self.tuning]
+        tuning_notes = [self.midi_to_note_name(note, include_octave=False) for note in self.tuning]
         return f"{tuning_name} ({', '.join(tuning_notes)})"
 
     def current_state(self):
         """Returns a string of the current tuning, octave, transpose, scale mode, and root note."""
         scale_mode = self.scale_modes[self.current_scale_index] if self.current_scale_index is not None else "None"
-        root_note = self.midi_to_note_name(
-            self.tuning[0] + self.octave_shift * 12 + self.semitone_shift, include_octave=False)
+        root_note = self.midi_to_note_name(self.tuning[0] + self.octave_shift * 12 + self.semitone_shift, include_octave = False)
         return (f"\nTuning: {self.tuning_name()}\n"
                 f"Octave: {self.octave_shift}\t"
                 f"Semitone: {self.semitone_shift}\n"
@@ -124,10 +117,7 @@ class MIDINoteGrid:
 
     def __str__(self):
         """Returns a string representation of the note grid with note names for debugging."""
-        grid_str = "\n".join(
-            ["\t".join(self.midi_to_note_name(note) for note in row)
-             for row in self.grid]
-        )
+        grid_str = "\n".join(["\t".join(self.midi_to_note_name(note) for note in row) for row in self.grid])
         return f"{self.current_state()}\n\n{grid_str}"
 
 
@@ -165,8 +155,7 @@ if __name__ == "__main__":
         elif key == ord('q'):     # Quit program
             break
         else:
-            print(
-                "Invalid key. Use 'z', 'x', 'c', 'v', 'd', 'f', 's', 'a', or 'q' to quit.")
+            print("Invalid key. Use 'z', 'x', 'c', 'v', 'd', 'f', 's', 'a', or 'q' to quit.")
 
         # Clear the console for a cleaner view each time
         print("\033[H\033[J")  # ANSI escape code to clear terminal screen
